@@ -1,0 +1,298 @@
+{
+  "info": {
+    "_postman_id": "a075af7d-61f5-4a3c-bb54-b50f8c8b9a14",
+    "name": "API AeroGym - Postman",
+    "description": "Fluxo de testes da API AeroGym. Configure pessoaId com uma pessoa existente ainda sem usuário vinculado. Cada execução cria e desativa um usuário de teste, então use outra pessoa livre na próxima execução.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api"
+    },
+    {
+      "key": "usuarioId",
+      "value": "1"
+    },
+    {
+      "key": "pessoaId",
+      "value": "2"
+    },
+    {
+      "key": "login",
+      "value": "admin"
+    },
+    {
+      "key": "senha",
+      "value": "sua-senha"
+    },
+    {
+      "key": "loginTeste",
+      "value": ""
+    },
+    {
+      "key": "loginAtualizado",
+      "value": ""
+    },
+    {
+      "key": "usuarioTesteId",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Autenticação",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login retorna 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Resposta inclui token e usuário sem senha', function () { const body = pm.response.json(); pm.expect(body.token).to.be.a('string').and.not.empty; pm.expect(body.usuario).to.have.property('id'); pm.expect(body.usuario).not.to.have.property('senha'); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set('token', pm.response.json().token); pm.collectionVariables.set('usuarioId', pm.response.json().usuario.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"login\": \"{{login}}\", \"senha\": \"{{senha}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/usuarios/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuários",
+      "item": [
+        {
+          "name": "Listar usuários ativos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/usuarios"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listagem retorna 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Resposta é uma lista somente de usuários ativos e sem senhas', function () { const body = pm.response.json(); pm.expect(body).to.be.an('array'); body.forEach((user) => { pm.expect(user.ativo).to.eql(true); pm.expect(user).not.to.have.property('senha'); }); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar usuário autenticado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/usuarios/{{usuarioId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Consulta por ID retorna 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('ID corresponde e senha não é exposta', function () { const body = pm.response.json(); pm.expect(String(body.id)).to.eql(String(pm.collectionVariables.get('usuarioId'))); pm.expect(body).not.to.have.property('senha'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastrar usuário de teste",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"login\": \"{{loginTeste}}\", \"senha\": \"senha-segura\", \"perfil\": \"ALUNO\", \"pessoaId\": {{pessoaId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/usuarios"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cadastro retorna 201 e Location', function () { pm.response.to.have.status(201); pm.expect(pm.response.headers.get('Location')).to.include('/api/usuarios/'); });",
+                  "pm.test('Resposta contém usuário criado sem senha', function () { const body = pm.response.json(); pm.expect(body.id).to.exist; pm.expect(body.login).to.eql(pm.collectionVariables.get('loginTeste')); pm.expect(body).not.to.have.property('senha'); pm.collectionVariables.set('usuarioTesteId', body.id); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar usuário de teste",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"login\": \"{{loginAtualizado}}\", \"perfil\": \"ALUNO\", \"pessoaId\": {{pessoaId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/usuarios/{{usuarioTesteId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Atualização retorna 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Dados foram atualizados sem expor senha', function () { const body = pm.response.json(); pm.expect(String(body.id)).to.eql(String(pm.collectionVariables.get('usuarioTesteId'))); pm.expect(body.login).to.eql(pm.collectionVariables.get('loginAtualizado')); pm.expect(body).not.to.have.property('senha'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desativar somente o usuário de teste",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/usuarios/{{usuarioTesteId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Desativação retorna 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirmar usuário desativado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/usuarios/{{usuarioTesteId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Consulta do usuário desativado retorna 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Usuário consta como inativo', function () { pm.expect(pm.response.json().ativo).to.eql(false); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Finalização",
+      "item": [
+        {
+          "name": "Encerrar sessão (última etapa)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/usuarios/sessao"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Encerrar sessão retorna 204', function () { pm.response.to.have.status(204); });",
+                  "pm.collectionVariables.unset('token');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
