@@ -1,58 +1,23 @@
-# Sistema de Gestão de Academia - Interface Web
+# AeroGym — Frontend Web
 
-Este projeto abriga a interface web para o Sistema de Gestão de Academia, agora desenvolvido com React, com o objetivo de substituir o controle manual por uma solução digital completa.
+Interface web em React para o AeroGym, sistema acadêmico de gestão de academia. O projeto concentra o acesso ao sistema e as ferramentas administrativas disponíveis pela API REST.
 
-## 🎯 Funcionalidades
+## Recursos da interface
 
-* **Acesso ao Sistema:** Tela de login com validação de e-mail e senha. A autenticação ainda é demonstrativa e não está conectada a um servidor.
+- Página inicial de apresentação do AeroGym.
+- Tela de login integrada à API, com indicação visual das credenciais de demonstração para avaliação acadêmica.
+- Painel administrativo protegido por sessão, com listagem, cadastro, edição e desativação de usuários.
+- Navegação entre páginas com React Router e componentes reutilizáveis.
+- Layout responsivo para telas de celular e desktop.
 
-* **Painel Administrativo:** Exibição de usuários e seus status. Os botões de edição e exclusão são apenas visuais nesta etapa.
+O cadastro de um usuário associa a conta a uma pessoa já existente no banco de dados.
 
-* **Navegação entre Páginas:** A aplicação utiliza React Router DOM para navegar entre a página inicial, o login e o painel administrativo.
+## Organização
 
-O layout e as permissões de acesso serão divididos entre dois atores principais: o Administrador, que possui acesso total aos cadastros, pagamentos e treinos, e o Aluno, que visualizará sua própria ficha de treino e a situação do seu plano.
+As páginas ficam em `src/paginas`, os componentes reutilizáveis em `src/componentes` e as chamadas HTTP em `src/servicos`. O projeto usa React, React Router, Vite e CSS.
 
-## 🗂️ Estrutura inicial do Projeto
+## Escopo atual
 
-* 📄 **`index.html`**: Documento principal e ponto de entrada da aplicação React.
+A interface integrada ao backend cobre autenticação e gerenciamento de usuários. As áreas de planos, pagamentos, treinos e controle de acesso ainda não estão disponíveis nesta versão web.
 
-* 📁 **`src/`**: Pasta com o código-fonte da aplicação.
-  * 📄 **`App.jsx`**: Define as rotas e organiza a aplicação.
-  * 📄 **`main.jsx`**: Inicializa o React e o React Router DOM.
-  * 📄 **`global.css`**: Folha de estilos global, incluindo o layout responsivo.
-  * 📁 **`componentes/`**: Componentes reutilizáveis da interface.
-    * 📄 **`Cabecalho.jsx`**: Cabeçalho com menu de navegação adaptado para celular.
-    * 📄 **`ContainerVidro.jsx`**: Contêiner visual utilizado nas páginas.
-    * 📄 **`LinhaUsuario.jsx`**: Linha de usuário e exibição do status na tabela.
-    * 📄 **`Rodape.jsx`**: Rodapé das páginas inicial e de login.
-  * 📁 **`paginas/`**: Páginas da aplicação.
-    * 📄 **`PaginaInicial.jsx`**: Apresentação do Aero Gym.
-    * 📄 **`PaginaLogin.jsx`**: Formulário de login e validação dos campos.
-    * 📄 **`PaginaAdmin.jsx`**: Painel administrativo com a lista de usuários.
-
-* 📁 **`public/assets/`**: Recursos estáticos utilizados pela aplicação.
-  * 📁 **`icons/`**: Ícone (favicon) exibido na aba do navegador.
-  * 📁 **`images/background/`**: Imagem de fundo das páginas.
-
-* 📄 **`package.json`**: Dependências e comandos do projeto.
-* 📄 **`vite.config.js`**: Configuração do Vite.
-* 📄 **`vercel.json`**: Regra de navegação para as rotas da aplicação quando hospedada na Vercel.
-
-## 🚀 Evolução Futura da Estrutura
-
-A estrutura atual poderá ser expandida para suportar os requisitos funcionais do sistema, como cadastro e gestão de alunos, controle de planos e pagamentos e criação e visualização de fichas de treino.
-
-## ▶️ Executando o Projeto
-
-Na pasta do projeto, instale as dependências e inicie o servidor de desenvolvimento:
-
-```bash
-npm install
-npm run dev
-```
-
-Para gerar a versão de produção, execute:
-
-```bash
-npm run build
-```
+A API REST está no repositório [Back-AeroGym](https://github.com/evandrolopes000777/prg03projetoEvandro). A coleção Postman para validar seus endpoints está em `colecoes/Colecao_AeroGym.postman_collection.json`.
